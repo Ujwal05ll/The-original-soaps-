@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Original Soaps E-commerce</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f8fdf7;
+    color: #2c5f2d;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    background-color: #4caf50;
+    color: white;
+    padding: 1em;
+    text-align: center;
+  }
+  h1 {
+    margin: 0;
+  }
+  .products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 1em;
+  }
+  .product {
+    background-color: white;
+    border: 1px solid #c5e1a5;
+    border-radius: 5px;
+    margin: 0.5em;
+    width: 200px;
+    padding: 1em;
+    box-shadow: 0 4px 6px rgb(0 0 0 / 0.1);
+    text-align: center;
+  }
+  .product img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 3px;
+  }
+  .product h3 {
+    margin: 0.5em 0 0.3em;
+  }
+  .price {
+    color: #558b2f;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+  }
+  button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 0.5em 1em;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  button:hover {
+    background-color: #357a38;
+  }
+  #cart {
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    background-color: white;
+    border: 1px solid #4caf50;
+    border-radius: 5px;
+    padding: 1em;
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgb(0 0 0 / 0.15);
+  }
+  #cart h2 {
+    margin-top: 0;
+    color: #2e7d32;
+  }
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid #a5d6a7;
+    padding-bottom: 0.3em;
+  }
+  .cart-item span {
+    flex: 1;
+  }
+  .cart-item .remove-btn {
+    background-color: #e53935;
+    border-radius: 3px;
+    padding: 0.1em 0.4em;
+    margin-left: 0.5em;
+  }
+  #total {
+    font-weight: bold;
+    margin-top: 1em;
+    text-align: right;
+    color: #33691e;
+  }
+  footer {
+    text-align: center;
+    padding: 1em;
+    background-color: #4caf50;
+    color: white;
+    margin-top: 2em;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Original Soaps</h1>
+  <p>Natural Handmade Soaps for Your Skin</p>
+</header>
+
+<div class="products" id="products">
+  <!-- Products rendered by JavaScript -->
+</div>
+
+<div id="cart">
+  <h2>Shopping Cart</h2>
+  <div id="cart-items">
+    <p>Your cart is empty.</p>
+  </div>
+  <div id="total"></div>
+</div>
+
+<script>
+  const products = [
+    {
+      id: 1,
+      name: 'Lavender Soap',
+      price: 250,
+      image: 'https://images.unsplash.com/photo-1561839565-2c829020f4cc?auto=format&fit=crop&w=250&q=80',
+    },
+    {
+      id: 2,
+      name: 'Neem Soap',
+      price: 200,
+      image: 'https://images.unsplash.com/photo-1590080877777-4c59fd30bf35?auto=format&fit=crop&w=250&q=80',
+    },
+    {
+      id: 3,
+      name: 'Honey & Oat Soap',
+      price: 300,
+      image: 'https://images.unsplash.com/photo-1584999738064-16de56d18f45?auto=format&fit=crop&w=250&q=80',
+    },
+  ];
+
+  const cart = {};
+
+  // Render products on page
+  function renderProducts() {
+    const container = document.getElementById('products');
+    container.innerHTML = '';
+    products.forEach((product) => {
+      const productDiv = document.createElement('div');
+      productDiv.className = 'product';
+      productDiv.innerHTML = `
+        <img src="${product.image}" alt="${product.name}" />
+        <h3>${product.name}</h3>
+        <div class="price">₹${product.price}</div>
+        <button onclick="addToCart(${product.id})">Add to Cart</button>
+      `;
+      container.appendChild(productDiv);
+    });
+  }
+
+  // Add product to cart or increase quantity
+  function addToCart(productId) {
+    if (cart[productId]) {
+      cart[productId].qty += 1;
+    } else {
+      const product = products.find((p) => p.id === productId);
+      cart[productId] = { ...product, qty: 1 };
+    }
+    renderCart();
+  }
+
+  // Remove product from cart
+  function removeFromCart(productId) {
+    delete cart[productId];
+    renderCart();
+  }
+
+  // Render cart items and total
+  function renderCart() {
+    const cartItemsContainer = document.getElementById('cart-items');
+    cartItemsContainer.innerHTML = '';
+    const productIds = Object.keys(cart);
+    if (productIds.length === 0) {
+      cartItemsContainer.innerHTML = '<p>Your cart is empty.</p>';
+      document.getElementById('total').innerText = '';
+      return;
+    }
+
+    let total = 0;
+    productIds.forEach((id) => {
+      const item = cart[id];
+      total += item.price * item.qty;
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'cart-item';
+      itemDiv.innerHTML = `
+        <span>${item.name} x ${item.qty}</span>
+        <span>₹${item.price * item.qty}</span>
+        <button class="remove-btn" onclick="removeFromCart(${item.id})">x</button>
+      `;
+      cartItemsContainer.appendChild(itemDiv);
+    });
+
+    document.getElementById('total').innerText = `Total: ₹${total}`;
+  }
+
+  // Initial rendering
+  renderProducts();
+</script>
+
+<footer>
+  &copy; 2025 Original Soaps. All rights reserved.
+</footer>
+</body>
+</html>
